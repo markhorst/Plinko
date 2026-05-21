@@ -45,21 +45,20 @@ Composite.add(world, pegs);
 
 // Walls, Ground, and Bucket Floors with secure protective edges
 Composite.add(world, [
-    Bodies.rectangle(width/2, height+50, width, 100, { isStatic: true }), // Main Floor (Coin stash)
+    // Main Floor (Lifted up by 100px to create a safe dead-zone at the bottom)
+    Bodies.rectangle(width/2, height - 50, width, 100, { isStatic: true }), 
     Bodies.rectangle(-25, height/2, 50, height, { isStatic: true }), // Left Wall
     Bodies.rectangle(width+25, height/2, 50, height, { isStatic: true }), // Right Wall
     
-// Bucket bases
-    Bodies.rectangle(165, height - 110, 250, 20, { isStatic: true, label: 'saas-floor', render: { visible: false } }), 
-    Bodies.rectangle(width - 165, height - 110, 250, 20, { isStatic: true, label: 'non-saas-floor', render: { visible: false } }),
+    // Bucket bases (Lifted up)
+    Bodies.rectangle(165, height - 210, 250, 20, { isStatic: true, label: 'saas-floor', render: { visible: false } }), 
+    Bodies.rectangle(width - 165, height - 210, 250, 20, { isStatic: true, label: 'non-saas-floor', render: { visible: false } }),
 
-    // Physical retaining walls for J1 SAAS bucket (Left & Right edges)
-    Bodies.rectangle(40, height - 150, 20, 100, { isStatic: true, render: { visible: false } }), 
-    Bodies.rectangle(290, height - 150, 20, 100, { isStatic: true, render: { visible: false } }), 
-
-    // Physical retaining walls for Non-SAAS bucket (Left & Right edges)
-    Bodies.rectangle(510, height - 150, 20, 100, { isStatic: true, render: { visible: false } }), 
-    Bodies.rectangle(760, height - 150, 20, 100, { isStatic: true, render: { visible: false } })
+    // Physical retaining walls (Lifted up)
+    Bodies.rectangle(40, height - 250, 20, 100, { isStatic: true, render: { visible: false } }), 
+    Bodies.rectangle(290, height - 250, 20, 100, { isStatic: true, render: { visible: false } }), 
+    Bodies.rectangle(510, height - 250, 20, 100, { isStatic: true, render: { visible: false } }), 
+    Bodies.rectangle(760, height - 250, 20, 100, { isStatic: true, render: { visible: false } })
 ]);
 
 // --- Create Coins ---
@@ -74,7 +73,7 @@ const domLayer = document.getElementById('dom-layer');
 coinNames.forEach((name, index) => {
     // Starting position (Tray at the bottom)
     const startX = 100 + (index * 120);
-    const startY = height - 50;
+    const startY = height - 120;
 
     // Physics Body
     const coinBody = Bodies.circle(startX, startY, 35, {
@@ -151,7 +150,7 @@ Events.on(engine, 'beforeUpdate', function() {
         const currentY = activeCoin.position.y;
         
         // Wait until it drops a bit, shut off before it hits the bucket floor
-        if (currentY > 250 && currentY < 730) {
+        if (currentY > 250 && currentY < 620) {
             const currentX = activeCoin.position.x;
             const distanceX = targetMagnetX - currentX;
             
@@ -260,31 +259,27 @@ function triggerGlow(bucketElement) {
     }
 }
 
-// --- Mobile Responsive Scaling ---
-// Shrinks the game to fit any screen perfectly, avoiding Safari nav bars
+// --- Mobile Responsive Scaling & Touch Fix ---
 function resizeGame() {
     const container = document.querySelector('.game-container');
-    
-    // Get the real available screen space
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight; 
     
-    // Calculate the ratio needed to shrink the 800x900 board to fit
     const scaleX = screenWidth / 800;
     const scaleY = screenHeight / 900;
-    
-    // Use the smaller ratio to ensure nothing gets cut off, minus a tiny 2% margin
     const scale = Math.min(scaleX, scaleY) * 0.98; 
-    
-    // Cap the scale at 1 so it doesn't blow up massive on desktop monitors
     const finalScale = scale > 1 ? 1 : scale;
     
-    // Apply the CSS shrink
     container.style.transform = `scale(${finalScale})`;
     container.style.transformOrigin = 'center center';
-}
 
-// Run immediately, and run again if the user rotates their phone
+    // CRITICAL TOUCH FIX: 
+    // Tells Matter.js that the screen has shrunk, so it correctly maps 
+    // your finger's position to the scaled physics bodies.
+    if (mouse) {
+        Matter.Mouse.setScale(mouse, { x: 1 / finalScale, y: 1 / finalScale });
+    }
+}
 window.addEventListener('resize', resizeGame);
 resizeGame();
 

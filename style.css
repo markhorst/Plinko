@@ -77,7 +77,7 @@ body {
 /* Buckets */
 .buckets {
     position: absolute;
-    bottom: 120px; /* Moved up to clear the coin stash */
+    bottom: 220px; /* Lifted significantly higher to avoid Safari nav bars */
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -221,4 +221,10 @@ body {
 .drop-zone.active::after {
     content: "RELEASE TO DROP!";
 }
+
+/* Forces mobile browsers to pass touch events to the game instead of scrolling */
+#canvas-container canvas {
+    touch-action: none !important;
+}
+
 

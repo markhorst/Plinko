@@ -23,10 +23,10 @@ Runner.run(runner, engine);
 // --- Build Board ---
 // Pegs
 const pegs = [];
-const rows = 7; // Reduced from 10 to clear vertical jams
-const cols = 8; // Reduced from 12 so gaps (100px) are wider than the 70px coins
+const rows = 5; // Reduced to 5 to create 84px vertical gaps (plenty of room for 70px coins)
+const cols = 8; 
 const spacingX = width / cols;
-const spacingY = (height - 350) / rows; 
+const spacingY = (height - 480) / rows; 
 
 for (let r = 0; r < rows; r++) {
     const offset = (r % 2 === 0) ? spacingX / 2 : 0;

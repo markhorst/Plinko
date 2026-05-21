@@ -1,0 +1,217 @@
+:root {
+    --bg-dark: #121212;
+    --board-color: #1e1e24;
+    --saas-glow: #00ff88;
+    --non-saas-glow: #ff3366;
+    --gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-dark);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.game-container {
+    position: relative;
+    width: 800px;
+    height: 900px;
+    background: var(--board-color);
+    border-radius: 20px;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 20px 50px rgba(0,0,0,0.5);
+    border: 2px solid #333;
+}
+
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Physics mouse events happen here */
+}
+
+#dom-layer {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; /* Let clicks pass to canvas */
+    z-index: 2;
+}
+
+/* Premium Physical Coins */
+.coin-ui {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #333;
+    box-shadow: inset 0 0 10px rgba(255,255,255,0.5), 0 8px 15px rgba(0,0,0,0.6);
+    border: 2px solid #8c6d23;
+    transform: translate(-50%, -50%); /* Center on physics body */
+    user-select: none;
+    line-height: 1.1;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+/* Buckets */
+.buckets {
+    position: absolute;
+    bottom: 120px; /* Moved up to clear the coin stash */
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 40px;
+    box-sizing: border-box;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.bucket {
+    width: 250px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.5);
+}
+
+.saas-bucket {
+    background: rgba(0, 255, 136, 0.1);
+    border: 2px solid var(--saas-glow);
+    border-bottom: none;
+    text-shadow: 0 0 10px var(--saas-glow);
+}
+
+.non-saas-bucket {
+    background: rgba(255, 51, 102, 0.1);
+    border: 2px solid var(--non-saas-glow);
+    border-bottom: none;
+    text-shadow: 0 0 10px var(--non-saas-glow);
+}
+
+/* Glassmorphism Modal */
+.modal {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 40px;
+    border-radius: 20px;
+    width: 80%;
+    text-align: center;
+    color: white;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+}
+
+.btn-group button {
+    padding: 15px 40px;
+    margin: 10px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.1s;
+}
+
+.btn-yes { background: var(--saas-glow); color: #000; }
+.btn-no { background: #555; color: #fff; }
+.btn-group button:hover { transform: scale(1.05); }
+
+/* Premium Impact Animations */
+@keyframes saas-neon-flare {
+    0% { background: rgba(0, 255, 136, 0.1); box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
+    30% { background: rgba(0, 255, 136, 0.5); box-shadow: 0 0 60px rgba(0, 255, 136, 0.9), inset 0 0 30px rgba(0,255,136,0.4); }
+    100% { background: rgba(0, 255, 136, 0.1); box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
+}
+
+@keyframes nonsaas-neon-flare {
+    0% { background: rgba(255, 51, 102, 0.1); box-shadow: 0 0 20px rgba(255, 51, 102, 0.2); }
+    30% { background: rgba(255, 51, 102, 0.5); box-shadow: 0 0 60px rgba(255, 51, 102, 0.9), inset 0 0 30px rgba(255,51,102,0.4); }
+    100% { background: rgba(255, 51, 102, 0.1); box-shadow: 0 0 20px rgba(255, 51, 102, 0.2); }
+}
+
+/* State Triggers bound via JS Event Handlers */
+.saas-bucket.pulse-glow {
+    animation: saas-neon-flare 0.8s ease-in-out 2;
+}
+
+.non-saas-bucket.pulse-glow {
+    animation: nonsaas-neon-flare 0.8s ease-in-out 2;
+}
+
+/* --- Drop Zone UI --- */
+.drop-zone {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 100px;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    z-index: 1; /* Keep it below the coins */
+    pointer-events: none; /* CRITICAL: Allows mouse clicks to pass through to the physics canvas */
+    transition: all 0.2s ease-in-out;
+}
+
+/* The state triggered by JavaScript when holding a coin inside the zone */
+.drop-zone.active {
+    border-color: rgba(0, 255, 136, 0.9);
+    background: rgba(0, 255, 136, 0.15);
+    color: rgba(0, 255, 136, 1);
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.4), inset 0 0 20px rgba(0, 255, 136, 0.2);
+    transform: translateX(-50%) scale(1.02); /* Slight pop effect */
+}
+
+/* Changes the text automatically when active */
+.drop-zone.active .drop-text {
+    display: none;
+}
+.drop-zone.active::after {
+    content: "RELEASE TO DROP!";
+}
+

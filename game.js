@@ -259,3 +259,32 @@ function triggerGlow(bucketElement) {
         setTimeout(() => bucketElement.classList.remove('pulse-glow'), 1600);
     }
 }
+
+// --- Mobile Responsive Scaling ---
+// Shrinks the game to fit any screen perfectly, avoiding Safari nav bars
+function resizeGame() {
+    const container = document.querySelector('.game-container');
+    
+    // Get the real available screen space
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight; 
+    
+    // Calculate the ratio needed to shrink the 800x900 board to fit
+    const scaleX = screenWidth / 800;
+    const scaleY = screenHeight / 900;
+    
+    // Use the smaller ratio to ensure nothing gets cut off, minus a tiny 2% margin
+    const scale = Math.min(scaleX, scaleY) * 0.98; 
+    
+    // Cap the scale at 1 so it doesn't blow up massive on desktop monitors
+    const finalScale = scale > 1 ? 1 : scale;
+    
+    // Apply the CSS shrink
+    container.style.transform = `scale(${finalScale})`;
+    container.style.transformOrigin = 'center center';
+}
+
+// Run immediately, and run again if the user rotates their phone
+window.addEventListener('resize', resizeGame);
+resizeGame();
+

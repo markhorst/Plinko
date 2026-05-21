@@ -14,8 +14,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     overflow: hidden;
+
+    /* THE SAFARI FIX: dvh dynamically adjusts when the nav bar appears */
+    height: 100dvh; 
+    
+    /* THE TOUCH FIX: Prevents pull-to-refresh and page swiping while dragging */
+    touch-action: none; 
+    -webkit-user-select: none; /* Stops accidental text highlighting on iOS */
+    user-select: none;
 }
 
 .game-container {
